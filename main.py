@@ -37,7 +37,7 @@ st.markdown("""
         margin: 1rem 0;
     }
     .price-text {
-        font-size: 2.5rem;
+        font-size: 4rem;
         font-weight: bold;
         color: #2ca02c;
     }
@@ -73,7 +73,7 @@ page = st.sidebar.radio("Go to", ["Price Predictor", "Data Exploration", "Model 
 
 # PAGE 1: PRICE PREDICTOR
 if page == "Price Predictor":
-    st.markdown('<p class="sub-header"> Predict Your Car\'s Market Price</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">🎯 Predict Your Car\'s Market Price</p>', unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     
@@ -154,28 +154,6 @@ if page == "Price Predictor":
             st.markdown("### Predicted Market Price")
             st.markdown(f'<p class="price-text">${prediction:,.2f}</p>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
-            
-            # Additional insights
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Estimated Range (±10%)", 
-                         f"${prediction*0.9:,.0f} - ${prediction*1.1:,.0f}")
-            with col2:
-                avg_price = df_sample['sellingprice'].mean()
-                diff = ((prediction - avg_price) / avg_price) * 100
-                st.metric("vs Average Market Price", 
-                         f"{diff:+.1f}%")
-            with col3:
-                similar_cars = df_sample[
-                    (df_sample['make'] == make) & 
-                    (df_sample['year'] >= year - 2) & 
-                    (df_sample['year'] <= year + 2)
-                ]
-                if len(similar_cars) > 0:
-                    st.metric("Similar Cars in Dataset", 
-                             f"{len(similar_cars):,}")
-                else:
-                    st.metric("Similar Cars in Dataset", "0")
             
         except Exception as e:
             st.error(f"Error making prediction: {e}")
@@ -273,7 +251,7 @@ elif page == "Data Exploration":
 
 # PAGE 3: MODEL PERFORMANCE
 elif page == "Model Performance":
-    st.markdown('<p class="sub-header"> Model Performance Metrics</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">🎯 Model Performance Metrics</p>', unsafe_allow_html=True)
     
     # Calculate predictions on sample data for visualization
     feature_cols = ['year', 'condition', 'odometer', 'make_encoded', 
@@ -329,59 +307,6 @@ elif page == "Model Performance":
         width = bar.get_width()
         ax.text(width, bar.get_y() + bar.get_height()/2, 
                f'{width:.1f}%', ha='left', va='center', fontsize=10)
-    
-    plt.tight_layout()
-    st.pyplot(fig)
-    
-    st.markdown("---")
-    
-    # Prediction vs Actual scatter plot
-    st.subheader("Predicted vs Actual Prices")
-    
-    # Sample for visualization (to avoid overplotting)
-    sample_size = min(5000, len(df_sample))
-    indices = np.random.choice(len(y), sample_size, replace=False)
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    ax.scatter(y.iloc[indices], y_pred[indices], alpha=0.5, s=20, color='steelblue')
-    
-    # Perfect prediction line
-    min_val = min(y.min(), y_pred.min())
-    max_val = max(y.max(), y_pred.max())
-    ax.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label='Perfect Prediction')
-    
-    ax.set_xlabel('Actual Price ($)', fontsize=12)
-    ax.set_ylabel('Predicted Price ($)', fontsize=12)
-    ax.set_title('Predicted vs Actual Selling Prices', fontsize=16, fontweight='bold')
-    ax.legend()
-    ax.grid(alpha=0.3)
-    
-    plt.tight_layout()
-    st.pyplot(fig)
-    
-    # Residual plot
-    st.markdown("---")
-    st.subheader("Residual Analysis")
-    
-    residuals = y.iloc[indices] - y_pred[indices]
-    
-    fig, axes = plt.subplots(1, 2, figsize=(15, 5))
-    
-    # Residual scatter
-    axes[0].scatter(y_pred[indices], residuals, alpha=0.5, s=20, color='coral')
-    axes[0].axhline(y=0, color='r', linestyle='--', lw=2)
-    axes[0].set_xlabel('Predicted Price ($)', fontsize=12)
-    axes[0].set_ylabel('Residuals ($)', fontsize=12)
-    axes[0].set_title('Residual Plot', fontsize=14, fontweight='bold')
-    axes[0].grid(alpha=0.3)
-    
-    # Residual distribution
-    axes[1].hist(residuals, bins=50, color='skyblue', edgecolor='black')
-    axes[1].set_xlabel('Residuals ($)', fontsize=12)
-    axes[1].set_ylabel('Frequency', fontsize=12)
-    axes[1].set_title('Residual Distribution', fontsize=14, fontweight='bold')
-    axes[1].axvline(x=0, color='r', linestyle='--', lw=2)
-    axes[1].grid(alpha=0.3)
     
     plt.tight_layout()
     st.pyplot(fig)
